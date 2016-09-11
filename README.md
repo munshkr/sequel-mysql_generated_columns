@@ -1,4 +1,4 @@
-# sequel-mysql_generated_columns
+# sequel-mysql_generated_columns [![Build Status](https://travis-ci.org/munshkr/sequel-mysql_generated_columns.svg?branch=master)](https://travis-ci.org/munshkr/sequel-mysql_generated_columns)
 
 Sequel extension that ads support for MySQL generated columns (added first on MySQL 5.7.5).
 
