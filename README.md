@@ -1,6 +1,43 @@
 # sequel-mysql_generated_columns [![Build Status](https://travis-ci.org/munshkr/sequel-mysql_generated_columns.svg?branch=master)](https://travis-ci.org/munshkr/sequel-mysql_generated_columns)
 
-Sequel extension that ads support for MySQL generated columns (added first on MySQL 5.7.5).
+Sequel extension that adds support for MySQL generated columns (added first on
+MySQL 5.7.5).
+
+When enabled, use `#generated_column` method on `DB#create_table` blocks, and
+`#add_generated_column` method on `DB#alter_table` blocks.
+
+## Example
+
+```ruby
+create_table(:triangles) do
+  Integer :a
+  Integer :b
+  generated_column :c, Integer, :sqrt.sql_function(:a*:a + :b*:b)
+end
+```
+
+```sql
+CREATE TABLE `triangles` (
+  `a` integer,
+  `b` integer,
+  `c` integer AS (sqrt(((`a` * `a`) + (`b` * `b`))))
+)
+```
+
+```ruby
+create_table(:docs) do
+  json :doc
+end
+
+alter_table(:docs) do
+  add_generated_column :id, Integer, :json_extract.sql_function(:doc, '$.id'), primary_key: true, stored: true
+end
+```
+
+```sql
+CREATE TABLE `documents` (`doc` json)
+ALTER TABLE `documents` ADD COLUMN `name` integer AS (json_extract(`doc`, '$.id')) STORED PRIMARY KEY
+```
 
 
 ## Installation
@@ -24,7 +61,27 @@ Or install it yourself as:
 
 To enable extension, call `DB.extension :mysql_generated_columns`.
 
-*TODO: Write usage examples*
+Use `#generated_column(name, type, expression, opts)` or
+`#add_generated_column(name, type, expression, opts)` on `create_table` and
+`alter_table` blocks respectively.
+
+Possible options:
+
+* `:stored`: Whether generated column will be STORED or VIRTUAL. By default it
+  omits the STORED keyword, so this means generated column will be a virtual
+  column.
+
+* `:unique`: Whether to add a unique constraint or not. By default it omits the
+  UNIQUE KEY keyword.
+
+* `:null`: Allow null values or not. By default it omits keyword, meaning it
+  falls back to database default.
+
+* `:primary_key`: If column has a primary key or not. By default it omits the
+  keyword PRIMARY KEY.
+
+* `:index`: Whether to create an index after adding column or not. Same
+  arguments as `:index` option in conventional `#add_column`.
 
 
 ## Development
