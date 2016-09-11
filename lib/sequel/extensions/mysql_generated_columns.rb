@@ -9,55 +9,12 @@ module Sequel
       NOT_NULL = ' NOT NULL'.freeze
       PRIMARY_KEY = ' PRIMARY KEY'.freeze
 
-      # Additional methods for the create_table generator to support constraint validations.
-      module CreateTableGeneratorMethods
-        def generated_column(name, type, expr, opts={})
-          index_opts = opts.delete(:index)
-          columns << {:name => name, :type => type, :expr => expr, :gen => true}.merge!(opts)
-          if index_opts
-            index(name, index_opts.is_a?(Hash) ? index_opts : {})
-          end
-        end
-      end
-
-      # Additional methods for the alter_table generator to support constraint validations,
-      # used to give it a more similar API to the create_table generator.
-      module AlterTableGeneratorMethods
-        include CreateTableGeneratorMethods
-
-        # Add a generated column with the given name, type, and opts to the DDL for the table.
-        #
-        #   add_generated_column(:name, String, Sequel.function(:sum, :a, :b)) # ADD COLUMN name varchar(255) AS (SUM(a, b))
-        def add_generated_column(name, type, expr, opts={})
-          @operations << {:op => :add_column, :name => name, :type => type, :expr => expr, :gen => true}.merge!(opts)
-        end
-      end
-
-      # Modify the default create_table generator to include
-      # the generated columns methods.
-      def create_table_generator(&block)
-        super do
-          extend CreateTableGeneratorMethods
-          @generated_columns = []
-          instance_eval(&block) if block
-        end
-      end
-
-      # Modify the default alter_table generator to include
-      # the generated columns methods.
-      def alter_table_generator(&block)
-        super do
-          extend AlterTableGeneratorMethods
-          instance_eval(&block) if block
-        end
-      end
-
       # Modify column definition generator method to support generated columns
       def column_definition_sql(column)
-        if column[:gen]
+        if expr = column[:as]
           sql = String.new
           sql << "#{quote_identifier(column[:name])} #{type_literal(column)}"
-          sql << " AS (#{literal(column[:expr])})"
+          sql << " AS (#{literal(expr)})"
           generated_column_definition_order.each{|m| send(:"generated_column_definition_#{m}_sql", sql, column)}
           sql
         else

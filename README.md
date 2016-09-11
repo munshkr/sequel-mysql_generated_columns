@@ -3,18 +3,22 @@
 Sequel extension that adds support for MySQL generated columns (added first on
 MySQL 5.7.5).
 
-When enabled, use `#generated_column` method on `DB#create_table` blocks, and
-`#add_generated_column` method on `DB#alter_table` blocks.
+When enabled, it allows passing an SQL expression with the option `:as` to
+`#column` and `#add_column` methods, inside `DB#create_table` and
+`DB#alter_table` blocks.
 
 ## Example
 
+When used in a `create_table` block:
+
 ```ruby
 create_table(:triangles) do
-  Integer :a
-  Integer :b
-  generated_column :c, Integer, :sqrt.sql_function(:a*:a + :b*:b)
+  integer :a
+  integer :b
+  integer :c, :as => :sqrt.sql_function(:a*:a + :b*:b)
 end
 ```
+This will generate the following SQL statement:
 
 ```sql
 CREATE TABLE `triangles` (
@@ -24,15 +28,23 @@ CREATE TABLE `triangles` (
 )
 ```
 
+In this example, after creating a table with a single JSON column, the next
+`alter_table` block:
+
 ```ruby
 create_table(:docs) do
   json :doc
 end
 
 alter_table(:docs) do
-  add_generated_column :id, Integer, :json_extract.sql_function(:doc, '$.id'), primary_key: true, stored: true
+  add_column :id, Integer, :as => :json_extract.sql_function(:doc, '$.id'),
+                           :stored => true,
+                           :primary_key => true
 end
 ```
+
+will add a stored generated column with a primary key over the JSON object
+property `id` in from the JSON document stored in column `doc`:
 
 ```sql
 CREATE TABLE `documents` (`doc` json)
