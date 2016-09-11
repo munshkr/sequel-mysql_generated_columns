@@ -36,7 +36,7 @@ end
 
 ```sql
 CREATE TABLE `documents` (`doc` json)
-ALTER TABLE `documents` ADD COLUMN `name` integer AS (json_extract(`doc`, '$.id')) STORED PRIMARY KEY
+ALTER TABLE `documents` ADD COLUMN `id` integer AS (json_extract(`doc`, '$.id')) STORED PRIMARY KEY
 ```
 
 
