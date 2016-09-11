@@ -21,7 +21,7 @@ module Sequel
       module AlterTableGeneratorMethods
         include CreateTableGeneratorMethods
 
-				# Add a generated column with the given name, type, and opts to the DDL for the table.
+        # Add a generated column with the given name, type, and opts to the DDL for the table.
         #
         #   add_generated_column(:name, String, Sequel.function(:sum, :a, :b)) # ADD COLUMN name varchar(255) AS (SUM(a, b))
         def add_generated_column(name, type, expr, opts={})
