@@ -4,10 +4,14 @@ module Sequel
       # The order of column modifiers to use when defining a column.
       GENERATED_COLUMN_DEFINITION_ORDER = [:stored, :unique, :null, :primary_key]
       STORED = ' STORED'.freeze
+      UNIQUE = ' UNIQUE'.freeze
+      NULL = ' NULL'.freeze
+      NOT_NULL = ' NOT NULL'.freeze
+      PRIMARY_KEY = ' PRIMARY KEY'.freeze
 
       # Additional methods for the create_table generator to support constraint validations.
       module CreateTableGeneratorMethods
-        def generated(name, type, expr, opts={})
+        def generated_column(name, type, expr, opts={})
           index_opts = opts.delete(:index)
           columns << {:name => name, :type => type, :expr => expr, :gen => true}.merge!(opts)
           if index_opts
