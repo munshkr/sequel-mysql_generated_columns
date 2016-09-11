@@ -73,27 +73,24 @@ Or install it yourself as:
 
 To enable extension, call `DB.extension :mysql_generated_columns`.
 
-Use `#generated_column(name, type, expression, opts)` or
-`#add_generated_column(name, type, expression, opts)` on `create_table` and
-`alter_table` blocks respectively.
+Use `#column` or `#add_column` with an extra options `:as => expr` where `expr`
+is an SQL expression object or a string literal.
 
 Possible options:
 
 * `:stored`: Whether generated column will be STORED or VIRTUAL. By default it
-  omits the STORED keyword, so this means generated column will be a virtual
-  column.
+  omits the STORED keyword, so this means generated column will be virtual.
 
 * `:unique`: Whether to add a unique constraint or not. By default it omits the
   UNIQUE KEY keyword.
 
-* `:null`: Allow null values or not. By default it omits keyword, meaning it
-  falls back to database default.
+* `:null`: Allow or disallow null values. By default it omits keyword, meaning
+  it falls back to database default.
 
-* `:primary_key`: If column has a primary key or not. By default it omits the
-  keyword PRIMARY KEY.
+* `:primary_key`: Whether column has a primary key or not. By default it omits
+  the keyword PRIMARY KEY.
 
-* `:index`: Whether to create an index after adding column or not. Same
-  arguments as `:index` option in conventional `#add_column`.
+* `:index`: Whether to create an index after adding column or not.
 
 
 ## Development
